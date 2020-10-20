@@ -1,0 +1,107 @@
+---
+title: "FItness Device Analysis"
+author: "Adithyaa"
+date: "20/10/2020"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+# Overview
+
+In this project, the aim is to analyse the data and classify it into A,B,C,D or E.
+
+
+# Importing the necessary libraries
+
+```{r}
+library(readr) ##used for reading csv files in R
+library(caret) ##classification and regression trees
+library(rpart)
+library(randomForest)
+```
+
+
+# Obtaining the data
+
+## Reading the training dataset
+
+```{r}
+train <- read_csv("C:/Users/adith/Documents/PML_Project/train.csv")
+summary(train)
+head(train)
+```
+
+
+
+## Reading the test dataset
+
+```{r}
+test <- read_csv("C:/Users/adith/Documents/PML_Project/test.csv")
+summary(test)
+head(test)
+```
+
+
+# Performing Exploratory Data Analysis
+
+```{r}
+str(train) ## to obtain the type of each column
+dim(train) ## checking the number of rows and columns
+```
+
+The training dataset contains 19622 rows and 160 columns
+
+```{r}
+table(train$classe) ##taking count for final results
+```
+
+# Data Cleaning
+
+## Dealing with missing values
+
+```{r}
+na_count = sapply(1:dim(train)[2],function(x)sum(is.na(train[,x])))
+na_list = which(na_count > 0)
+colnames(train[,c(1:7)])
+```
+
+Now we know how many missing values we have and where they are. The next step is to remove these from the dataset.
+
+## Removing the null values from both training and test sets
+
+```{r}
+train = train[,-na_list]
+train = train[,-c(1:7)]
+train$classe = factor(train$classe)
+test = test[,-na_list]
+test = test[,-c(1:7)]
+```
+
+# Model Building
+
+## Decision Tree
+
+```{r}
+dtClassifier = rpart(formula = classe~.,data=train)
+dt_y_prediction = predict(dtClassifier, train)
+print(dt_y_prediction)
+
+dt_y_prediction_test = predict(dtClassifier, test, type = "class")
+print(dt_y_prediction_test)
+```
+
+## Random Forest
+
+```{r}
+rfClassifier = randomForest(formula = classe~.,data=train, ntree = 10)
+rf_y_prediction = predict(rfClassifier, train)
+print(rf_y_prediction)
+
+rf_y_prediction_test = predict(rfClassifier, test)
+print(rf_y_prediction_test)
+```
+
+
+
+
